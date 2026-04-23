@@ -1,10 +1,18 @@
 package com.taskmanager.task_manager_api.model.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Entity
+@Table(name = "log_notificacoes")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class LogNotificacao {
     public enum Tipo { LEMBRETE_PRAZO, TAREFA_ATRIBUIDA }
     public enum StatusEnvio { ENVIADO, FALHOU }

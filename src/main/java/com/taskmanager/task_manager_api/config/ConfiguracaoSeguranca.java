@@ -21,19 +21,22 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-@RequiredArgsConstructor
 public class ConfiguracaoSeguranca {
 
     private final FiltroAutenticacaoJwt filtroAutenticacaoJwt;
     private final UsuarioRepository usuarioRepository;
 
+    // @Lazy resolve a dependência circular entre o filtro e a configuração
+    public ConfiguracaoSeguranca(@Lazy FiltroAutenticacaoJwt filtroAutenticacaoJwt,
+                                 UsuarioRepository usuarioRepository) {
+        this.filtroAutenticacaoJwt = filtroAutenticacaoJwt;
+        this.usuarioRepository = usuarioRepository;
+    }
+
     @Bean
     public SecurityFilterChain cadeiaFiltrosSeguranca(HttpSecurity http) throws Exception {
         http
-                // Desativa CSRF — APIs REST stateless não precisam
                 .csrf(AbstractHttpConfigurer::disable)
-
-                // Rotas públicas e protegidas
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/auth/**",
@@ -44,15 +47,10 @@ public class ConfiguracaoSeguranca {
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
-
-                // Stateless: sem sessão HTTP, cada requisição precisa do token JWT
                 .sessionManagement(sessao ->
                         sessao.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-
                 .authenticationProvider(provedorAutenticacao())
-
-                // Adiciona nosso filtro JWT antes do filtro padrão
                 .addFilterBefore(filtroAutenticacaoJwt, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

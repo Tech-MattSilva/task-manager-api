@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Function;
 
+@Service
 public class ServicoJwt {
 
     @Value("${app.jwt.secret}")
